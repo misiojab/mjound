@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MJound</string>
+    <string name="enabled">Enabled</string>
+    <string name="flat">Flat</string>
+    <string name="bass_boost">Bass boost</string>
+    <string name="about">About...</string>
+    <string name="ok">OK</string>
+    <string name="copyright_message"></string>
+    <string name="channel_name">Mjound</string>
+    <string name="channel_desc">Mjound channel</string>
+</resources>
