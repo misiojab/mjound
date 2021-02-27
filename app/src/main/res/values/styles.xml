@@ -5,22 +5,28 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item type="attr" name="colorPrimaryLight">@color/colorPrimaryLight</item>
         <item name="colorAccent">@color/colorAccent</item>
 
-        <item name="android:imageButtonStyle">@style/button</item>
 
+
+        <item type="attr" name="colorSecondary">@color/colorSecondary</item>
+        <item type="attr" name="colorSecondaryDark">@color/colorSecondaryDark</item>
+        <item type="attr" name="colorSecondaryLight">@color/colorSecondaryLight</item>
+
+
+
+        <item name="android:spinnerDropDownItemStyle">@style/spinnerItemStyle</item>
+        <item name="android:textColor">@color/spinnerTextColor</item>
         
     </style>
-    
-    <style name="button" parent="android:style/Widget.ImageButton">
-        <item name="android:textColor">#FFFFFFFF</item>
-        <item name="android:shadowColor">#FF000000</item>
-        <item name="android:shadowDx">0</item>
-        <item name="android:shadowDy">-1</item>
-        <item name="android:shadowRadius">0.2</item>
-        <item name="android:background">@drawable/button_power</item>
-        <item name="android:focusable">true</item>
-        <item name="android:clickable">true</item>
+
+    <style name="spinnerItemStyle" parent="@android:style/Widget.Holo.DropDownItem.Spinner">
+        <item name="android:textColor">@color/spinnerTextColor</item>
     </style>
+
+
+    
+
 
 </resources>

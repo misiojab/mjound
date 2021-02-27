@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Theme">
+    <attr name="colorSecondary" format="color|reference" />
+    <attr name="colorPrimaryLight" format="color|reference" />
+    <attr name="colorSecondaryDark" format="color|reference" />
+    <attr name="colorSecondaryLight" format="color|reference" />
+    </declare-styleable>
+
+
+</resources>

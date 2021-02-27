@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#1a237e</color>
-    <color name="colorPrimaryDark">#000051</color>
+    <color name="colorPrimary">#424242</color>
+    <color name="colorPrimaryDark">#1b1b1b</color>
+    <color name="colorPrimaryLight">#6d6d6d</color>
+
     <color name="colorAccent">#dd2c00</color>
+
+    <color name="colorSecondary">#ffe0b2</color>
+    <color name="colorSecondaryDark">#cbae82</color>
+    <color name="colorSecondaryLight">#ffffe4</color>
+
     <color name="colorEnabled">#a30000</color>
     <color name="colorDisabled">#747474</color>
-    <color name="notification_background">#000051</color>
+
+    <color name="spinnerTextColor">#ffffff</color>
+
+    <color name="notification_background">#1b1b1b</color>
 </resources>

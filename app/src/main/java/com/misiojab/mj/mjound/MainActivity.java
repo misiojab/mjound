@@ -123,15 +123,6 @@ public class MainActivity extends Activity {
 
         // listen for when the music stream ends playing
 
-        rButton = (ImageButton) findViewById(R.id.OnButton);
-        rButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rButton.setEnabled(true);
-
-            }
-
-        });
 
 
     }
@@ -276,7 +267,7 @@ public class MainActivity extends Activity {
             final short equalizerBandIndex = i;
 
 //            frequency header for each seekBar
-            /*
+
             TextView frequencyHeaderTextview = new TextView(this);
             frequencyHeaderTextview.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -285,7 +276,7 @@ public class MainActivity extends Activity {
             frequencyHeaderTextview
                     .setText((mEqualizer.getCenterFreq(equalizerBandIndex) / 1000) + " Hz");
             mLinearLayout.addView(frequencyHeaderTextview);
-            */
+
 
 //            set up linear layout to contain each seekBar
             LinearLayout seekBarRowLayout = new LinearLayout(this);
@@ -318,7 +309,7 @@ public class MainActivity extends Activity {
             SeekBar seekBar = new SeekBar(this);
 //            give the seekBar an ID
             seekBar.setId(i);
-            seekBar.setPadding( 0, 36, 0, 36);
+            seekBar.setPadding( 0, 38, 0, 38);
 
             seekBar.setLayoutParams(layoutParams);
             seekBar.setMax(upperEqualizerBandLevel - lowerEqualizerBandLevel);
