@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -38,12 +39,10 @@ public class MainActivity extends Activity {
 
     private static final float VISUALIZER_HEIGHT_DIP = 50f;
 
-
     private MediaPlayer mMediaPlayer;
 
     private Equalizer mEqualizer;
 
-    private ImageButton rButton;
 
     public BassBoost bassBoost;
     private short bassValue;
@@ -63,9 +62,6 @@ public class MainActivity extends Activity {
 
     private VisualizerView mVisualizerView;
     private Visualizer mVisualizer;
-
-
-
 
 //    private TextView mStatusTextView;
 
@@ -118,13 +114,12 @@ public class MainActivity extends Activity {
         setupBassBoost();
         setupLoudnessEnhancer();
 
+        setupSettingsButton();
+
         // enable the visualizer
 
 
         // listen for when the music stream ends playing
-
-
-
     }
 
     /* shows spinner with list of equalizer presets to choose from
@@ -203,6 +198,18 @@ public class MainActivity extends Activity {
             }
             public void onStopTrackingTouch(SeekBar seekBar) {
 
+            }
+        });
+    }
+
+    private void setupSettingsButton(){
+
+        ImageButton settingsButton = (ImageButton) findViewById(R.id.SettingsButton);
+
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             }
         });
     }
