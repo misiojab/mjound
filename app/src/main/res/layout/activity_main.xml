@@ -16,84 +16,82 @@
         android:background="@color/colorPrimary">
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/volumeLevel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="8dp"
-            android:text="+"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/LoudBar" />
+            android:layout_marginEnd="44dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/montserrat"
+            android:text="+0"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/LoudBar"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="44dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="0"
+            android:fontFamily="@font/montserrat"
+            android:text="Volume"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@+id/LoudBar"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <me.tankery.lib.circularseekbar.CircularSeekBar
+            android:id="@+id/BassCircular"
+            android:layout_width="150dp"
+
+            android:layout_height="150dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginBottom="24dp"
+            app:cs_circle_color="@color/circleColor"
+            app:cs_circle_progress_color="@color/colorAccent"
+            app:cs_circle_stroke_width="2dp"
+            app:cs_circle_style="round"
+            app:cs_end_angle="45"
+            app:cs_maintain_equal_circle="true"
+            app:cs_pointer_color="@color/colorAccent"
+            app:cs_pointer_halo_color="@color/colorAccent"
+            app:cs_pointer_halo_color_ontouch="@color/colorAccent"
+
+
+            app:cs_start_angle="-225"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <LinearLayout
             android:id="@+id/linearLayoutEqual"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="280dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="48dp"
             android:layout_weight="0"
             android:orientation="vertical"
             android:padding="5dp"
             android:rotation="270"
             android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@+id/textView2"
+            app:layout_constraintBottom_toTopOf="@+id/LoudBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView">
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
 
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="24dp"
-            android:text="-"
-            app:layout_constraintBottom_toTopOf="@+id/BassSeeker"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <SeekBar
-            android:id="@+id/BassSeeker"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="32dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent" />
 
         <SeekBar
             android:id="@+id/LoudBar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/BassCircular"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
-
-        <LinearLayout
-            android:id="@+id/linearLayoutVisual"
-            android:layout_width="368dp"
-            android:layout_height="116dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:orientation="vertical"
-            android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@+id/textView2"
-            app:layout_constraintEnd_toEndOf="@+id/linearLayoutEqual"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView"
-            app:layout_constraintVertical_bias="1.0">
-
-        </LinearLayout>
+            app:layout_constraintStart_toStartOf="parent" />
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -144,7 +142,7 @@
 
             <Spinner
                 android:id="@+id/spinner"
-                style="@style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar"
+                style="@style/Widget.AppCompat.Spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
@@ -155,22 +153,60 @@
                 android:spinnerMode="dialog"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </android.support.constraint.ConstraintLayout>
 
+        <me.tankery.lib.circularseekbar.CircularSeekBar
+            android:id="@+id/circularVirtualizer"
+            android:layout_width="150dp"
+
+            android:layout_height="150dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="24dp"
+            app:cs_circle_color="@color/circleColor"
+            app:cs_circle_progress_color="@color/colorAccent"
+            app:cs_circle_style="round"
+            app:cs_end_angle="45"
+            app:cs_pointer_alpha_ontouch="38"
+            app:cs_pointer_color="@color/colorAccent"
+            app:cs_pointer_halo_color="@color/colorAccent"
+
+            app:cs_pointer_halo_color_ontouch="@color/colorAccent"
+            app:cs_start_angle="-225"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
+            android:layout_marginTop="48dp"
             android:layout_marginBottom="8dp"
+            android:layout_weight="0"
             android:fontFamily="@font/montserrat"
             android:text="Bass"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="#ffffff"
             android:textSize="18sp"
-            app:layout_constraintBottom_toTopOf="@+id/BassSeeker"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintBottom_toTopOf="@+id/BassLevel"
+            app:layout_constraintEnd_toEndOf="@+id/BassCircular"
+            app:layout_constraintStart_toStartOf="@+id/BassCircular"
+            app:layout_constraintTop_toTopOf="@+id/BassCircular"
+            app:layout_constraintVertical_bias="0.49" />
+
+        <TextView
+            android:id="@+id/BassLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="48dp"
+            android:fontFamily="@font/montserrat"
+            android:textColor="#fff"
+            android:text="+0"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="@+id/BassCircular"
+            app:layout_constraintEnd_toEndOf="@+id/BassCircular"
+            app:layout_constraintStart_toStartOf="@+id/BassCircular" />
 
 
     </android.support.constraint.ConstraintLayout>

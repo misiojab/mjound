@@ -13,7 +13,10 @@
     <color name="colorEnabled">#a30000</color>
     <color name="colorDisabled">#747474</color>
 
-    <color name="spinnerTextColor">#ffffff</color>
+    <color name="textColor">#fff</color>
+    <color name="spinnerTextColor">#000</color>
 
-    <color name="notification_background">#1b1b1b</color>
+    <color name="circleColor">#4D1b1b1b</color>
+
+    <color name="notification_background">#cbae82</color>
 </resources>

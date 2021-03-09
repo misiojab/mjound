@@ -10,6 +10,7 @@ public class SavedData {
     public static final String APP = "com.misiojab.mj.mjound";
     public static final String BASS_VALUE_KEY = "com.misiojab.mj.mjound.bassvalue";
     public static final String LOUD_VALUE_KEY = "com.misiojab.mj.mjound.loudvalue";
+    public static final String VIRTUALIZER_VALUE_KEY = "com.misiojab.mj.mjound.virtualizervalue";
 
     public static final String SELECTED_PRESET = "com.misiojab.mj.mjound.selected_preset";
     public static final String SELECTED_PRESET_NUM_KEY = "com.misiojab.mj.mjound.loudvalue";

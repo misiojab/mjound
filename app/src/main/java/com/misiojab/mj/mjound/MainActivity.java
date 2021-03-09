@@ -1,28 +1,22 @@
 package com.misiojab.mj.mjound;
 
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.media.Image;
 import android.media.MediaPlayer;
 import android.media.audiofx.BassBoost;
 import android.media.audiofx.Equalizer;
 import android.media.audiofx.LoudnessEnhancer;
+import android.media.audiofx.Virtualizer;
 import android.media.audiofx.Visualizer;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.view.Gravity;
 import android.view.View;
+import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -31,8 +25,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import static com.misiojab.mj.mjound.BackgroundService.NOTIF_ID;
-import static com.misiojab.mj.mjound.SavedData.SELECTED_PRESET;
+import me.tankery.lib.circularseekbar.CircularSeekBar;
+
 import static java.lang.Integer.valueOf;
 
 public class MainActivity extends Activity {
@@ -43,14 +37,20 @@ public class MainActivity extends Activity {
 
     private Equalizer mEqualizer;
 
-
     public BassBoost bassBoost;
     private short bassValue;
-    public SeekBar bassSeeker;
+
+    public CircularSeekBar bassCircular;
+    public TextView textBass;
+
+    public Virtualizer virtualizer;
+    private short virtualizerValue;
+    public CircularSeekBar virtualizerSeeker;
 
     public LoudnessEnhancer loudnessEnhancer;
     public SeekBar loudBar;
     private short loudValue;
+    public TextView textLoud;
 
     public Spinner equalizerPresetSpinner;
     public int selected_preset_num;
@@ -70,7 +70,6 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
 //        set the device's volume control to control the audio stream we'll be playing
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -102,17 +101,23 @@ public class MainActivity extends Activity {
         bassBoost = new BassBoost(5, mMediaPlayer.getAudioSessionId());
         bassBoost.setEnabled(true);
 
+        virtualizer = new Virtualizer(5, mMediaPlayer.getAudioSessionId());
+        virtualizer.setEnabled(true);
+
         loudnessEnhancer = new LoudnessEnhancer(mMediaPlayer.getAudioSessionId());
         loudnessEnhancer.setEnabled(true);
 
 
 //        set up visualizer and equalizer bars
-
 //        setupVisualizerFxAndUI();
 
         setupEqualizerFxAndUI();
-        setupBassBoost();
+
         setupLoudnessEnhancer();
+
+        setupBassCircular();
+
+        setupVirtualizer();
 
         setupSettingsButton();
 
@@ -181,25 +186,88 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void setupBassBoost(){
+    private void setupBassCircular(){
+        bassCircular = (CircularSeekBar) findViewById(R.id.BassCircular);
+        bassCircular.setMax(1000);
 
-        bassSeeker = (SeekBar) findViewById(R.id.BassSeeker);
-        bassSeeker.setMax(1000);
-        bassSeeker.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        textBass = (TextView) findViewById(R.id.BassLevel);
 
-            @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        bassCircular.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(CircularSeekBar circularSeekBar, float progress, boolean fromUser) {
                 short value = (short) progress;
                 bassValue = value;
                 bassBoost.setStrength(value);
+
+                textBass.setText("+" + value/100);
             }
+
+            @Override
+            public void onStopTrackingTouch(CircularSeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(CircularSeekBar seekBar) {
+
+            }
+        });
+    }
+
+    private void setupVirtualizer(){
+        virtualizerSeeker = (CircularSeekBar) findViewById(R.id.circularVirtualizer);
+        virtualizerSeeker.setMax(1000);
+
+        virtualizerSeeker.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(CircularSeekBar circularSeekBar, float progress, boolean fromUser) {
+                short value = (short) progress;
+                virtualizerValue = value;
+                virtualizer.setStrength(value);
+            }
+
+            
+
+            @Override
+            public void onStopTrackingTouch(CircularSeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(CircularSeekBar seekBar) {
+
+            }
+        });
+    }
+
+    private void setupLoudnessEnhancer(){
+
+        loudBar = (SeekBar) findViewById(R.id.LoudBar);
+        loudBar.setMax(1000);
+
+        textLoud = (TextView) findViewById(R.id.volumeLevel);
+
+        loudBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                short value = (short) progress;
+                loudValue = value;
+                loudnessEnhancer.setTargetGain(value);
+
+                textLoud.setText("+" + value/100);
+            }
+
+
             public void onStartTrackingTouch(SeekBar seekBar) {
 
             }
+
             public void onStopTrackingTouch(SeekBar seekBar) {
 
             }
         });
+
     }
 
     private void setupSettingsButton(){
@@ -214,32 +282,6 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void setupLoudnessEnhancer(){
-
-        loudBar = (SeekBar) findViewById(R.id.LoudBar);
-        loudBar.setMax(1500);
-        loudBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                loudValue = (short) progress;
-                loudnessEnhancer.setTargetGain(progress);
-            }
-
-
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-
-
-    }
 
     /* displays the SeekBar sliders for the supported equalizer frequency bands
      user can move sliders to change the frequency of the bands*/
@@ -274,7 +316,7 @@ public class MainActivity extends Activity {
             final short equalizerBandIndex = i;
 
 //            frequency header for each seekBar
-
+            /*
             TextView frequencyHeaderTextview = new TextView(this);
             frequencyHeaderTextview.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -283,7 +325,7 @@ public class MainActivity extends Activity {
             frequencyHeaderTextview
                     .setText((mEqualizer.getCenterFreq(equalizerBandIndex) / 1000) + " Hz");
             mLinearLayout.addView(frequencyHeaderTextview);
-
+            */
 
 //            set up linear layout to contain each seekBar
             LinearLayout seekBarRowLayout = new LinearLayout(this);
@@ -355,7 +397,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    /*displays the audio waveform*/
+    /*displays the audio waveform
     @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
     private void setupVisualizerFxAndUI() {
         mLinearLayout = findViewById(R.id.linearLayoutVisual);
@@ -380,7 +422,7 @@ public class MainActivity extends Activity {
             }
         }, Visualizer.getMaxCaptureRate() / 2, true, false);
     }
-
+    */
 
     @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
     @Override
@@ -388,7 +430,6 @@ public class MainActivity extends Activity {
         super.onPause();
 
         saveSettings();
-        
 
         if (isFinishing() && mMediaPlayer != null) {
 
@@ -396,30 +437,27 @@ public class MainActivity extends Activity {
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
-
-
-
-
-
     }
+
     @Override
         protected  void onResume() {
             super.onResume();
 
-        bassSeeker.setProgress(SavedData.readInt(SavedData.BASS_VALUE_KEY, this));
-        loudBar.setProgress(SavedData.readInt(SavedData.LOUD_VALUE_KEY, this));
-        equalizerPresetSpinner.setSelection(SavedData.readInt(SavedData.SELECTED_PRESET_NUM_KEY, this));
+            loudBar.setProgress(SavedData.readInt(SavedData.LOUD_VALUE_KEY, this));
+            equalizerPresetSpinner.setSelection(SavedData.readInt(SavedData.SELECTED_PRESET_NUM_KEY, this));
+            virtualizerSeeker.setProgress(SavedData.readInt(SavedData.VIRTUALIZER_VALUE_KEY, this));
 
-
-    }
+            bassCircular.setProgress(SavedData.readInt(SavedData.BASS_VALUE_KEY, this));
+        }
 
     private void saveSettings(){
+
         SavedData.saveSetting(SavedData.BASS_VALUE_KEY, bassValue, this);
         SavedData.saveSetting(SavedData.LOUD_VALUE_KEY, loudValue, this);
         SavedData.saveSetting(SavedData.SELECTED_PRESET_NUM_KEY, selected_preset_num, this);
         SavedData.saveSetting(SavedData.SELECTED_PRESET, selected_preset, this);
 
-
+        SavedData.saveSetting(SavedData.VIRTUALIZER_VALUE_KEY, virtualizerValue, this);
     }
 
 }
