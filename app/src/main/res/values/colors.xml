@@ -10,9 +10,6 @@
     <color name="colorSecondaryDark">#cbae82</color>
     <color name="colorSecondaryLight">#ffffe4</color>
 
-    <color name="colorEnabled">#a30000</color>
-    <color name="colorDisabled">#747474</color>
-
     <color name="textColor">#fff</color>
     <color name="spinnerTextColor">#000</color>
 

@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.view.View;
-import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -136,10 +135,10 @@ public class MainActivity extends Activity {
         final ArrayList<String> equalizerPresetNames = new ArrayList<String>();
         ArrayAdapter<String> equalizerPresetSpinnerAdapter
                 = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item,
+                R.layout.spinner_item,
                 equalizerPresetNames);
         equalizerPresetSpinnerAdapter
-                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                .setDropDownViewResource(R.layout.spinner_dropdown_item);
         equalizerPresetSpinner = (Spinner) findViewById(R.id.spinner);
 //        get list of the device's equalizer presets
         for (short i = 0; i < mEqualizer.getNumberOfPresets(); i++) {

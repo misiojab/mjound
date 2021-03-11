@@ -23,25 +23,25 @@
           android:strokeColor="#1b1b1b"/>
       <path
           android:pathData="M0,96h192v96h-192z"
-          android:strokeWidth="1"
+          android:strokeWidth="0"
           android:fillColor="#1b1b1b"
           android:strokeColor="#00000000"/>
       <path
           android:pathData="M0.5,96.5h191v95h-191z"
-          android:strokeWidth="1"
+          android:strokeWidth="0"
           android:fillColor="#00000000"
           android:strokeColor="#1b1b1b"/>
       <path
           android:pathData="M0,96h192v96h-192z"
           android:strokeAlpha="0.12"
-          android:strokeWidth="1"
+          android:strokeWidth="0"
           android:fillColor="#fff"
           android:strokeColor="#00000000"
           android:fillAlpha="0.12"/>
       <path
           android:pathData="M0.5,96.5h191v95h-191z"
           android:strokeAlpha="0.12"
-          android:strokeWidth="1"
+          android:strokeWidth="0"
           android:fillColor="#00000000"
           android:strokeColor="#fff"
           android:fillAlpha="0.12"/>
