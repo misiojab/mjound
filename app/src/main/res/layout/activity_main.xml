@@ -145,19 +145,36 @@
                 style="@style/Widget.AppCompat.Spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
+                android:layout_marginStart="32dp"
                 android:layout_marginTop="24dp"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:layout_marginBottom="8dp"
                 android:background="#00000000"
+
+                android:clickable="true"
                 android:dropDownWidth="match_parent"
                 android:popupBackground="@color/colorPrimaryDark"
                 android:spinnerMode="dropdown"
+
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/returnButton2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginEnd="24dp"
+                android:backgroundTint="#00FFFFFF"
+                android:clickable="false"
+                android:rotation="-90"
+                android:src="?attr/homeAsUpIndicator"
+                android:tint="#FFFFFF"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
         </android.support.constraint.ConstraintLayout>
 

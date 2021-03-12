@@ -2,6 +2,7 @@ package com.misiojab.mj.mjound;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.audiofx.BassBoost;
@@ -11,6 +12,7 @@ import android.media.audiofx.Virtualizer;
 import android.media.audiofx.Visualizer;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.ViewGroup;
@@ -248,7 +250,7 @@ public class MainActivity extends Activity {
 
         loudBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 short value = (short) progress;
                 loudValue = value;
@@ -455,6 +457,7 @@ public class MainActivity extends Activity {
         SavedData.saveSetting(SavedData.LOUD_VALUE_KEY, loudValue, this);
         SavedData.saveSetting(SavedData.SELECTED_PRESET_NUM_KEY, selected_preset_num, this);
         SavedData.saveSetting(SavedData.SELECTED_PRESET, selected_preset, this);
+
 
         SavedData.saveSetting(SavedData.VIRTUALIZER_VALUE_KEY, virtualizerValue, this);
     }
