@@ -1,8 +1,11 @@
 package com.misiojab.mj.mjound;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.audiofx.BassBoost;
@@ -13,7 +16,9 @@ import android.media.audiofx.Visualizer;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -24,15 +29,15 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.gauravk.audiovisualizer.visualizer.WaveVisualizer;
+
 import java.util.ArrayList;
 
 import me.tankery.lib.circularseekbar.CircularSeekBar;
 
 import static java.lang.Integer.valueOf;
 
-public class MainActivity extends Activity {
-
-    private static final float VISUALIZER_HEIGHT_DIP = 50f;
+public class MainActivity extends Activity{
 
     private MediaPlayer mMediaPlayer;
 
@@ -57,12 +62,12 @@ public class MainActivity extends Activity {
     public int selected_preset_num;
     public String selected_preset = "none";
 
-
     private LinearLayout mLinearLayout;
     private int id = 0;
 
-    private VisualizerView mVisualizerView;
-    private Visualizer mVisualizer;
+    private int priority = 0; //było 5
+
+    private WaveVisualizer waveVisualizer;
 
 //    private TextView mStatusTextView;
 
@@ -72,37 +77,27 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        set the device's volume control to control the audio stream we'll be playing
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(new String[]{android.Manifest.permission.RECORD_AUDIO}, 1);
+        }
 
+//        set the device's volume control to control the audio stream we'll be playing
+        //setVolumeControlStream(AudioManager.STREAM_MUSIC);
         // Create the MediaPlayer
-        //you need to put your audio file in the res/raw folder
-        //- the filename must be test_audio_file or
-        //change it below to match your filename
 
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setAudioSessionId(id);
 
-/**
-        mVisualizer = new Visualizer(mMediaPlayer.getAudioSessionId());
-        mVisualizer.setEnabled(true);
-        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            public void onCompletion(MediaPlayer mediaPlayer) {
-//                disable the visualizer as it's no longer needed
-                mVisualizer.setEnabled(false);
-            }
-        });
-
-*/
 //        create the equalizer with default priority of 0 & attach to our media player
-        mEqualizer = new Equalizer(5, mMediaPlayer.getAudioSessionId());
+        mEqualizer = new Equalizer(priority, mMediaPlayer.getAudioSessionId());
         mEqualizer.setEnabled(true);
 
-        bassBoost = new BassBoost(5, mMediaPlayer.getAudioSessionId());
+        bassBoost = new BassBoost(priority, mMediaPlayer.getAudioSessionId());
         bassBoost.setEnabled(true);
 
-        virtualizer = new Virtualizer(5, mMediaPlayer.getAudioSessionId());
+        virtualizer = new Virtualizer(priority, mMediaPlayer.getAudioSessionId());
         virtualizer.setEnabled(true);
 
         loudnessEnhancer = new LoudnessEnhancer(mMediaPlayer.getAudioSessionId());
@@ -110,7 +105,6 @@ public class MainActivity extends Activity {
 
 
 //        set up visualizer and equalizer bars
-//        setupVisualizerFxAndUI();
 
         setupEqualizerFxAndUI();
 
@@ -122,10 +116,7 @@ public class MainActivity extends Activity {
 
         setupSettingsButton();
 
-        // enable the visualizer
-
-
-        // listen for when the music stream ends playing
+        setupVisualizer(mMediaPlayer.getAudioSessionId());
     }
 
     /* shows spinner with list of equalizer presets to choose from
@@ -283,6 +274,13 @@ public class MainActivity extends Activity {
         });
     }
 
+    private void setupVisualizer(int audioSessionId){
+        waveVisualizer = findViewById(R.id.wave);
+
+        if( audioSessionId != -1){
+            waveVisualizer.setAudioSessionId(audioSessionId);
+        }
+    }
 
     /* displays the SeekBar sliders for the supported equalizer frequency bands
      user can move sliders to change the frequency of the bands*/
@@ -398,33 +396,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    /*displays the audio waveform
-    @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
-    private void setupVisualizerFxAndUI() {
-        mLinearLayout = findViewById(R.id.linearLayoutVisual);
-        // Create a VisualizerView to display the audio waveform for the current settings
-        mVisualizerView = new VisualizerView(this);
-        mVisualizerView.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                (int) (VISUALIZER_HEIGHT_DIP * getResources().getDisplayMetrics().density)));
-        mLinearLayout.addView(mVisualizerView);
-
-        // Create the Visualizer object and attach it to our media player.
-        mVisualizer = new Visualizer(mMediaPlayer.getAudioSessionId());
-        mVisualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
-
-        mVisualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
-            public void onWaveFormDataCapture(Visualizer visualizer, byte[] bytes,
-                                              int samplingRate) {
-                mVisualizerView.updateVisualizer(bytes);
-            }
-
-            public void onFftDataCapture(Visualizer visualizer, byte[] bytes, int samplingRate) {
-            }
-        }, Visualizer.getMaxCaptureRate() / 2, true, false);
-    }
-    */
-
     @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
     @Override
     protected void onPause() {
@@ -441,15 +412,25 @@ public class MainActivity extends Activity {
     }
 
     @Override
-        protected  void onResume() {
-            super.onResume();
+    protected  void onResume() {
+        super.onResume();
 
-            loudBar.setProgress(SavedData.readInt(SavedData.LOUD_VALUE_KEY, this));
-            equalizerPresetSpinner.setSelection(SavedData.readInt(SavedData.SELECTED_PRESET_NUM_KEY, this));
-            virtualizerSeeker.setProgress(SavedData.readInt(SavedData.VIRTUALIZER_VALUE_KEY, this));
+        loudBar.setProgress(SavedData.readInt(SavedData.LOUD_VALUE_KEY, this));
+        equalizerPresetSpinner.setSelection(SavedData.readInt(SavedData.SELECTED_PRESET_NUM_KEY, this));
+        virtualizerSeeker.setProgress(SavedData.readInt(SavedData.VIRTUALIZER_VALUE_KEY, this));
+        bassCircular.setProgress(SavedData.readInt(SavedData.BASS_VALUE_KEY, this));
+    }
 
-            bassCircular.setProgress(SavedData.readInt(SavedData.BASS_VALUE_KEY, this));
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if(waveVisualizer != null){
+            waveVisualizer.release();
         }
+    }
+
+
 
     private void saveSettings(){
 
@@ -461,6 +442,7 @@ public class MainActivity extends Activity {
 
         SavedData.saveSetting(SavedData.VIRTUALIZER_VALUE_KEY, virtualizerValue, this);
     }
+
 
 }
 
