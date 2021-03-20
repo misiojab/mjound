@@ -12,6 +12,11 @@ public class SavedData {
     public static final String LOUD_VALUE_KEY = "com.misiojab.mj.mjound.loudvalue";
     public static final String VIRTUALIZER_VALUE_KEY = "com.misiojab.mj.mjound.virtualizervalue";
 
+    public static final String ARTIST = "com.misiojab.mj.mjound.artist";
+    public static final String SONG = "com.misiojab.mj.mjound.song";
+    public static final String ALBUM = "com.misiojab.mj.mjound.album";
+    public static final String GENRE =  "com.misiojab.mj.mjound.genre";
+
     public static final String SELECTED_PRESET = "com.misiojab.mj.mjound.selected_preset";
     public static final String SELECTED_PRESET_NUM_KEY = "com.misiojab.mj.mjound.loudvaluepreset";
 

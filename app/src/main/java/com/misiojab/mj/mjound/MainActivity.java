@@ -1,41 +1,64 @@
 package com.misiojab.mj.mjound;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.UriMatcher;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.MediaDataSource;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.audiofx.BassBoost;
 import android.media.audiofx.Equalizer;
 import android.media.audiofx.LoudnessEnhancer;
 import android.media.audiofx.Virtualizer;
 import android.media.audiofx.Visualizer;
+import android.media.session.MediaController;
+import android.media.session.MediaSessionManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
+import android.service.notification.NotificationListenerService;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.CardView;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gauravk.audiovisualizer.visualizer.WaveVisualizer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import me.tankery.lib.circularseekbar.CircularSeekBar;
 
-import static java.lang.Integer.valueOf;
 
 public class MainActivity extends Activity{
 
@@ -69,7 +92,15 @@ public class MainActivity extends Activity{
 
     private WaveVisualizer waveVisualizer;
 
-//    private TextView mStatusTextView;
+    ConstraintLayout hiddentLayout;
+    FloatingActionButton fab;
+    CardView cardView;
+
+    public TextView titleText;
+    public TextView genreText;
+    public TextView artistText;
+    public TextView status = null;
+
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -103,7 +134,6 @@ public class MainActivity extends Activity{
         loudnessEnhancer = new LoudnessEnhancer(mMediaPlayer.getAudioSessionId());
         loudnessEnhancer.setEnabled(true);
 
-
 //        set up visualizer and equalizer bars
 
         setupEqualizerFxAndUI();
@@ -116,7 +146,40 @@ public class MainActivity extends Activity{
 
         setupSettingsButton();
 
+        setupFab();
+
         setupVisualizer(mMediaPlayer.getAudioSessionId());
+
+        setupAutomaticFit();
+
+        startService(new Intent(this, NotificationListener.class));
+    }
+
+    private void setupFab() {
+        fab = findViewById(R.id.floatingActionButton);
+        hiddentLayout = findViewById(R.id.hiddenLayout);
+        cardView = findViewById(R.id.cardView);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("ResourceAsColor")
+            @Override
+            public void onClick(View v) {
+
+                Log.e("Przycisk: ", "pressed");
+
+                if (hiddentLayout.getVisibility() == View.VISIBLE) {
+
+                    TransitionManager.beginDelayedTransition(cardView, new AutoTransition());
+                    hiddentLayout.setVisibility(View.GONE);
+                    fab.setBackgroundColor(R.color.colorAccent);
+                } else {
+
+                    TransitionManager.beginDelayedTransition(cardView, new AutoTransition());
+                    hiddentLayout.setVisibility(View.VISIBLE);
+                    fab.setBackgroundColor(R.color.colorPrimaryDark);
+                }
+            }
+        });
     }
 
     /* shows spinner with list of equalizer presets to choose from
@@ -282,6 +345,21 @@ public class MainActivity extends Activity{
         }
     }
 
+    // work in progress
+    private void setupAutomaticFit(){
+
+
+        artistText = (TextView) findViewById(R.id.artistText);
+        genreText = (TextView) findViewById(R.id.genreText);
+        titleText = (TextView) findViewById(R.id.titleText);
+
+        artistText.setText(SavedData.readString(SavedData.ARTIST, this));
+        genreText.setText(SavedData.readString(SavedData.GENRE, this));
+        titleText.setText(SavedData.readString(SavedData.SONG, this));
+    }
+
+
+
     /* displays the SeekBar sliders for the supported equalizer frequency bands
      user can move sliders to change the frequency of the bands*/
     @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
@@ -297,8 +375,8 @@ public class MainActivity extends Activity{
         equalizerHeading.setTextSize(20);
         equalizerHeading.setGravity(Gravity.CENTER_HORIZONTAL);
         mLinearLayout.addView(equalizerHeading);
-
         */
+
 
 //        get number frequency bands supported by the equalizer engine
         short numberFrequencyBands = mEqualizer.getNumberOfBands();
@@ -356,8 +434,10 @@ public class MainActivity extends Activity{
 //            create a new seekBar
             SeekBar seekBar = new SeekBar(this);
 //            give the seekBar an ID
+
             seekBar.setId(i);
-            seekBar.setPadding( 0, 38, 0, 38);
+            seekBar.setPadding( 0, 40, 0, 40);
+
 
             seekBar.setLayoutParams(layoutParams);
             seekBar.setMax(upperEqualizerBandLevel - lowerEqualizerBandLevel);
@@ -419,6 +499,11 @@ public class MainActivity extends Activity{
         equalizerPresetSpinner.setSelection(SavedData.readInt(SavedData.SELECTED_PRESET_NUM_KEY, this));
         virtualizerSeeker.setProgress(SavedData.readInt(SavedData.VIRTUALIZER_VALUE_KEY, this));
         bassCircular.setProgress(SavedData.readInt(SavedData.BASS_VALUE_KEY, this));
+
+        artistText.setText(SavedData.readString(SavedData.ARTIST, this));
+        genreText.setText(SavedData.readString(SavedData.GENRE, this));
+        titleText.setText(SavedData.readString(SavedData.SONG, this));
+
     }
 
     @Override
@@ -430,8 +515,6 @@ public class MainActivity extends Activity{
         }
     }
 
-
-
     private void saveSettings(){
 
         SavedData.saveSetting(SavedData.BASS_VALUE_KEY, bassValue, this);
@@ -439,10 +522,8 @@ public class MainActivity extends Activity{
         SavedData.saveSetting(SavedData.SELECTED_PRESET_NUM_KEY, selected_preset_num, this);
         SavedData.saveSetting(SavedData.SELECTED_PRESET, selected_preset, this);
 
-
         SavedData.saveSetting(SavedData.VIRTUALIZER_VALUE_KEY, virtualizerValue, this);
     }
-
 
 }
 

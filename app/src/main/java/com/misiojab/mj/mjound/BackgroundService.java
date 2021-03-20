@@ -6,13 +6,21 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.RestrictionEntry;
+import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
+import android.media.audiofx.AudioEffect;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class BackgroundService extends Service {
 
@@ -22,22 +30,17 @@ public class BackgroundService extends Service {
     private static Notification noti;
 
 
+    public int onStartCommand(Intent intent, int flags, int startId){
+        createNotificationChannel();
+        startForeground();
 
-
-
+     return super.onStartCommand(intent, flags, startId);
+    }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    public int onStartCommand(Intent intent, int flags, int startId){
-
-        createNotificationChannel();
-        startForeground();
-
-     return super.onStartCommand(intent, flags, startId);
     }
 
     public void createNotificationChannel() {
@@ -76,6 +79,7 @@ public class BackgroundService extends Service {
                 .build());
     }
 
+
     @SuppressLint("ResourceAsColor")
     public static void updateNotification(Context c){
         Intent notificationIntent = new Intent(c, MainActivity.class);
@@ -96,13 +100,6 @@ public class BackgroundService extends Service {
         notificationManager.notify(NOTIF_ID, noti);
 
     }
-
-
-    
-
-
-
-
 
 
 }

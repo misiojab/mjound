@@ -1,6 +1,7 @@
 package com.misiojab.mj.mjound;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 
 public class Mjound extends Application {
@@ -9,6 +10,8 @@ public class Mjound extends Application {
         super.onCreate();
 
         startService(new Intent(this, BackgroundService.class));
+
+
     }
 
 

@@ -5,16 +5,15 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item type="attr" name="colorPrimaryLight">@color/colorPrimaryLight</item>
+        <item name="colorPrimaryLight" type="attr">@color/colorPrimaryLight</item>
         <item name="colorAccent">@color/colorAccent</item>
 
 
+        <item name="colorSecondary" type="attr">@color/colorSecondary</item>
+        <item name="colorSecondaryDark" type="attr">@color/colorSecondaryDark</item>
+        <item name="colorSecondaryLight" type="attr">@color/colorSecondaryLight</item>
 
-        <item type="attr" name="colorSecondary">@color/colorSecondary</item>
-        <item type="attr" name="colorSecondaryDark">@color/colorSecondaryDark</item>
-        <item type="attr" name="colorSecondaryLight">@color/colorSecondaryLight</item>
 
-        
     </style>
 
     <style name="spinnerItemStyle" parent="android:Widget.TextView.SpinnerItem">
@@ -24,6 +23,7 @@
     <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
 
     </style>
+
 
 
 
