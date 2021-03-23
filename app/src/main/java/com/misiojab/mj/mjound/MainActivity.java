@@ -86,7 +86,7 @@ public class MainActivity extends Activity{
     public String selected_preset = "none";
 
     private LinearLayout mLinearLayout;
-    private int id = 0;
+    private int id = -1;
 
     private int priority = 0; //było 5
 
@@ -110,20 +110,36 @@ public class MainActivity extends Activity{
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
         {
+
             requestPermissions(new String[]{android.Manifest.permission.RECORD_AUDIO}, 1);
         }
+
 
 //        set the device's volume control to control the audio stream we'll be playing
         //setVolumeControlStream(AudioManager.STREAM_MUSIC);
         // Create the MediaPlayer
 
-            mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.setAudioSessionId(id);
+        setupEqualizerCore();
+    }
+
+    public void setupEqualizerCore() {
+
+        id = SavedData.readInt(SavedData.ID, this);
+
+
+        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mMediaPlayer.setAudioSessionId(id);
+
 
 //        create the equalizer with default priority of 0 & attach to our media player
+
         mEqualizer = new Equalizer(priority, mMediaPlayer.getAudioSessionId());
         mEqualizer.setEnabled(true);
+
+        mEqualizer = new Equalizer(priority, mMediaPlayer.getAudioSessionId());
+        mEqualizer.setEnabled(true);
+
 
         bassBoost = new BassBoost(priority, mMediaPlayer.getAudioSessionId());
         bassBoost.setEnabled(true);
@@ -368,6 +384,9 @@ public class MainActivity extends Activity{
 //        get reference to linear layout for the seekBars
         mLinearLayout = (LinearLayout) findViewById(R.id.linearLayoutEqual);
 
+        ConstraintLayout mConstraintLayout = findViewById(R.id.eqHolder);
+
+
 //        equalizer heading
         /*
         TextView equalizerHeading = new TextView(this);
@@ -380,6 +399,9 @@ public class MainActivity extends Activity{
 
 //        get number frequency bands supported by the equalizer engine
         short numberFrequencyBands = mEqualizer.getNumberOfBands();
+
+
+
 
 //        get the level ranges to be used in setting the band level
 //        get lower limit of the range in milliBels
@@ -426,17 +448,20 @@ public class MainActivity extends Activity{
 
             //            **********  the seekBar  **************
 //            set the layout parameters for the seekbar
+
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            layoutParams.weight = 0;
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+            //layoutParams.height = 100;
+
 
 //            create a new seekBar
             SeekBar seekBar = new SeekBar(this);
 //            give the seekBar an ID
 
             seekBar.setId(i);
-            seekBar.setPadding( 0, 40, 0, 40);
+            seekBar.setPadding( 30, 40, 30, 40);
+
 
 
             seekBar.setLayoutParams(layoutParams);
@@ -509,6 +534,13 @@ public class MainActivity extends Activity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        if (isFinishing() && mMediaPlayer != null) {
+
+            mEqualizer.release();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
 
         if(waveVisualizer != null){
             waveVisualizer.release();

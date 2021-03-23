@@ -41,6 +41,12 @@
             </intent-filter>
         </service>
 
+        <receiver android:name=".AudioSessionReceiver">
+            <intent-filter>
+                <action android:name="android.media.action.OPEN_AUDIO_EFFECT_CONTROL_SESSION"/>
+            </intent-filter>
+        </receiver>
+
 
     </application>
 

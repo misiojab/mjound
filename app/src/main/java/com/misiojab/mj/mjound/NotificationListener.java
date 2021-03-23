@@ -3,7 +3,9 @@ package com.misiojab.mj.mjound;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
+import android.media.AudioRecord;
 import android.media.MediaMetadata;
+import android.media.MediaPlayer;
 import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
@@ -23,19 +25,29 @@ public class NotificationListener extends NotificationListenerService {
 
     private MediaMetadata meta;
 
+
+
     public void onCreate(){
         Log.e("NotificationListener: ","onCreate załapał");
         msManager = (MediaSessionManager) getSystemService(Context.MEDIA_SESSION_SERVICE);
         msManager.addOnActiveSessionsChangedListener(sessionListener, componentName);
         List<MediaController> controllers = msManager.getActiveSessions(componentName);
         mediaController = pickController(controllers);
+
+
+
         if(mediaController!=null) {
             mediaController.registerCallback(callback);
             meta = mediaController.getMetadata();
+
+
+
             updateMetadata();
             Log.e("NotificationListener: ","Metadata i controllery pyknęły");
         }
         online = true;
+
+
 
         // sendBroadcast!!!!
     }
@@ -47,6 +59,7 @@ public class NotificationListener extends NotificationListenerService {
             if(mediaController==null) return;
             mediaController.registerCallback(callback);
             meta = mediaController.getMetadata();
+
             updateMetadata();
             Log.e("NotificationListener: ","MediaSessionManager uruchomił sessionListenera");
             // sendBroadcast(new Intent(StandardWidget.WIDGET_UPDATE));
@@ -174,6 +187,7 @@ public class NotificationListener extends NotificationListenerService {
             Log.e(" .METADATA_KEY_ARTIST", meta.getString(MediaMetadata.METADATA_KEY_COMPOSER));
         if (meta.getString(MediaMetadata.METADATA_KEY_DURATION) != null)
             Log.e(" .METADATA_KEY_ARTIST", meta.getString(MediaMetadata.METADATA_KEY_DURATION));
+
     }
 
 

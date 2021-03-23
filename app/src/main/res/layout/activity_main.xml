@@ -68,26 +68,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/linearLayoutEqual"
-            android:layout_width="220dp"
-            android:layout_height="400dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="48dp"
-            android:layout_weight="0"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="5dp"
-            android:rotation="270"
-            android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@+id/LoudBar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar">
-
-
-        </LinearLayout>
-
         <SeekBar
             android:id="@+id/LoudBar"
             android:layout_width="0dp"
@@ -371,6 +351,41 @@
                 android:layout_weight="1"
                 android:rotation="270" />
         </LinearLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/eqHolder"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="56dp"
+            android:layout_marginBottom="16dp"
+            android:background="#C12A2A"
+            app:layout_constraintBottom_toTopOf="@+id/LoudBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+            <LinearLayout
+                android:id="@+id/linearLayoutEqual"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="64dp"
+                android:layout_marginTop="56dp"
+                android:layout_marginEnd="64dp"
+                android:layout_marginBottom="48dp"
+                android:layout_weight="0"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="5dp"
+                android:rotation="270"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+
+            </LinearLayout>
+        </android.support.constraint.ConstraintLayout>
 
 
     </android.support.constraint.ConstraintLayout>

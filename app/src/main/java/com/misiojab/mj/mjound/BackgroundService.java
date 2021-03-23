@@ -66,7 +66,6 @@ public class BackgroundService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, 0);
 
-
         startForeground(NOTIF_ID, noti = new NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_thunder)

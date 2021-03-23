@@ -17,6 +17,10 @@ public class SavedData {
     public static final String ALBUM = "com.misiojab.mj.mjound.album";
     public static final String GENRE =  "com.misiojab.mj.mjound.genre";
 
+    public static final String ID = "com.misiojab.mj.mjound.id";
+
+    public static final String ENABLED = "com.misiojab.mj.mjound.enabled";
+
     public static final String SELECTED_PRESET = "com.misiojab.mj.mjound.selected_preset";
     public static final String SELECTED_PRESET_NUM_KEY = "com.misiojab.mj.mjound.loudvaluepreset";
 
@@ -35,6 +39,13 @@ public class SavedData {
         return prefs.getString(KEY, "");
     }
 
+    public static boolean readBool(String KEY, Context mContext) {
+        SharedPreferences prefs = mContext.getSharedPreferences(
+                APP, Context.MODE_PRIVATE);
+
+        return prefs.getBoolean(KEY, false);
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
     public static void saveSetting(String KEY, int value, Context mContext) {
@@ -50,6 +61,12 @@ public class SavedData {
                 APP, Context.MODE_PRIVATE);
 
         prefs.edit().putString(KEY, value).apply();
+    }
+
+    public static void saveSetting(String KEY, boolean value, Context mContext) {
+        SharedPreferences prefs = mContext.getSharedPreferences(
+                APP, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY, value);
     }
 
 
