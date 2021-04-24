@@ -31,8 +31,11 @@ public class BackgroundService extends Service {
 
 
     public int onStartCommand(Intent intent, int flags, int startId){
-        createNotificationChannel();
-        startForeground();
+
+            createNotificationChannel();
+            startForeground();
+
+
 
      return super.onStartCommand(intent, flags, startId);
     }

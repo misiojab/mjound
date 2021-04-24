@@ -3,32 +3,19 @@ package com.misiojab.mj.mjound;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
+
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.UriMatcher;
 import android.content.pm.PackageManager;
-import android.media.AudioAttributes;
+import android.graphics.Typeface;
 import android.media.AudioManager;
-import android.media.MediaDataSource;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.audiofx.BassBoost;
 import android.media.audiofx.Equalizer;
 import android.media.audiofx.LoudnessEnhancer;
 import android.media.audiofx.Virtualizer;
-import android.media.audiofx.Visualizer;
-import android.media.session.MediaController;
-import android.media.session.MediaSessionManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import android.service.notification.NotificationListenerService;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -36,12 +23,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.CardView;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -50,21 +36,18 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.gauravk.audiovisualizer.visualizer.WaveVisualizer;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import me.tankery.lib.circularseekbar.CircularSeekBar;
 
-
 public class MainActivity extends Activity{
 
-    private MediaPlayer mMediaPlayer;
+    public MediaPlayer mMediaPlayer;
 
-    private Equalizer mEqualizer;
+    public Equalizer mEqualizer;
 
     public BassBoost bassBoost;
     private short bassValue;
@@ -96,36 +79,64 @@ public class MainActivity extends Activity{
     FloatingActionButton fab;
     CardView cardView;
 
+    ConstraintLayout disabledLayout;
+
     public TextView titleText;
     public TextView genreText;
     public TextView artistText;
     public TextView status = null;
 
+    public int seekbarWidth;
+    public int[] seekBarProgress;
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-        {
+        disabledLayout = findViewById(R.id.disabledLayout);
+        Button b = (Button) findViewById(R.id.goToSettings);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+                startActivity(i);
+            }
+        });
 
-            requestPermissions(new String[]{android.Manifest.permission.RECORD_AUDIO}, 1);
+        if (SavedData.readBool(SavedData.ENABLED, this)){
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.RECORD_AUDIO}, 1);
+            }
+
+            disabledLayout.setVisibility(View.GONE);
+
+            setupEqualizerCore();
+        } else {
+
+            disabledLayout.setVisibility(View.VISIBLE);
         }
+
+        setupSettingsButton();
+
+        setupFab();
 
 
 //        set the device's volume control to control the audio stream we'll be playing
         //setVolumeControlStream(AudioManager.STREAM_MUSIC);
         // Create the MediaPlayer
 
-        setupEqualizerCore();
+
+
+
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void setupEqualizerCore() {
 
         id = SavedData.readInt(SavedData.ID, this);
-
 
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -160,10 +171,6 @@ public class MainActivity extends Activity{
 
         setupVirtualizer();
 
-        setupSettingsButton();
-
-        setupFab();
-
         setupVisualizer(mMediaPlayer.getAudioSessionId());
 
         setupAutomaticFit();
@@ -176,24 +183,39 @@ public class MainActivity extends Activity{
         hiddentLayout = findViewById(R.id.hiddenLayout);
         cardView = findViewById(R.id.cardView);
 
+        if (SavedData.readBool(SavedData.AUTO_ENABLED, this)){
+            hiddentLayout.setVisibility(View.VISIBLE);
+        } else {
+            hiddentLayout.setVisibility(View.GONE);
+        }
+
         fab.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("ResourceAsColor")
             @Override
             public void onClick(View v) {
 
                 Log.e("Przycisk: ", "pressed");
+                boolean isAutoEnabled = false;
 
                 if (hiddentLayout.getVisibility() == View.VISIBLE) {
 
                     TransitionManager.beginDelayedTransition(cardView, new AutoTransition());
                     hiddentLayout.setVisibility(View.GONE);
                     fab.setBackgroundColor(R.color.colorAccent);
+                    isAutoEnabled = false;
+                    Log.e("AUTOENABLEC", "false");
+
                 } else {
 
                     TransitionManager.beginDelayedTransition(cardView, new AutoTransition());
                     hiddentLayout.setVisibility(View.VISIBLE);
                     fab.setBackgroundColor(R.color.colorPrimaryDark);
+                    isAutoEnabled = true;
+                    Log.e("AUTOENABLEC", "true");
                 }
+
+                SavedData.saveSetting(SavedData.AUTO_ENABLED, isAutoEnabled, getApplicationContext());
+
             }
         });
     }
@@ -213,9 +235,15 @@ public class MainActivity extends Activity{
                 .setDropDownViewResource(R.layout.spinner_dropdown_item);
         equalizerPresetSpinner = (Spinner) findViewById(R.id.spinner);
 //        get list of the device's equalizer presets
+
+        seekBarProgress = new int[mEqualizer.getNumberOfBands()];
+
         for (short i = 0; i < mEqualizer.getNumberOfPresets(); i++) {
             equalizerPresetNames.add(mEqualizer.getPresetName(i));
         }
+
+        equalizerPresetNames.add( mEqualizer.getNumberOfPresets(), "Custom");
+
         equalizerPresetSpinner.setAdapter(equalizerPresetSpinnerAdapter);
 
 //        handle the spinner item selections
@@ -226,26 +254,48 @@ public class MainActivity extends Activity{
             public void onItemSelected(AdapterView<?> parent,
                                        View view, int position, long id) {
                 //first list item selected by default and sets the preset accordingly
-                mEqualizer.usePreset((short) position);
-                selected_preset = equalizerPresetNames.get(position);
-                selected_preset_num = position;
-//                get the number of frequency bands for this equalizer engine
                 short numberFrequencyBands = mEqualizer.getNumberOfBands();
-//                get the lower gain setting for this equalizer band
-                final short lowerEqualizerBandLevel = mEqualizer.getBandLevelRange()[0];
 
-//                set seekBar indicators according to selected preset
-                for (short i = 0; i < numberFrequencyBands; i++) {
-                    short equalizerBandIndex = i;
+                if (position == mEqualizer.getNumberOfPresets()){
 
+                    for (short i = 0; i < numberFrequencyBands; i++) {
+                        short equalizerBandIndex = i;
 
-
-                    SeekBar seekBar = (SeekBar) findViewById(equalizerBandIndex);
+                        SeekBar seekBar = (SeekBar) findViewById(equalizerBandIndex);
 //                    get current gain setting for this equalizer band
 //                    set the progress indicator of this seekBar to indicate the current gain value
-                    seekBar.setProgress(mEqualizer
-                            .getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel);
+                        int[] temp = equalizerStringToArray(SavedData.readString(SavedData.EQUALIZERVALUES, getApplicationContext()));
+                        seekBar.setProgress(temp[i]);
+                    }
+                    equalizerPresetSpinner.setSelection(position);
+
+                } else {
+
+                    mEqualizer.usePreset((short) position);
+                    selected_preset = equalizerPresetNames.get(position);
+                    selected_preset_num = position;
+
+
+
+//                get the lower gain setting for this equalizer band
+                    final short lowerEqualizerBandLevel = mEqualizer.getBandLevelRange()[0];
+
+//                set seekBar indicators according to selected preset
+                    for (short i = 0; i < numberFrequencyBands; i++) {
+                        short equalizerBandIndex = i;
+
+                        SeekBar seekBar = (SeekBar) findViewById(equalizerBandIndex);
+//                    get current gain setting for this equalizer band
+//                    set the progress indicator of this seekBar to indicate the current gain value
+                        seekBar.setProgress(mEqualizer
+                                .getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel);
+
+
+                    }
+
+                    equalizerPresetSpinner.setSelection(position);
                 }
+
                 saveSettings();
                 BackgroundService.updateNotification(getApplicationContext());
             }
@@ -287,7 +337,9 @@ public class MainActivity extends Activity{
 
     private void setupVirtualizer(){
         virtualizerSeeker = (CircularSeekBar) findViewById(R.id.circularVirtualizer);
-        virtualizerSeeker.setMax(1000);
+        virtualizerSeeker.setMax(Virtualizer.PARAM_STRENGTH_SUPPORTED);
+        
+        Log.e("VIRTUALIZER",""+Virtualizer.PARAM_STRENGTH_SUPPORTED);
 
         virtualizerSeeker.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
             @Override
@@ -363,30 +415,46 @@ public class MainActivity extends Activity{
 
     // work in progress
     private void setupAutomaticFit(){
-
-
-        artistText = (TextView) findViewById(R.id.artistText);
-        genreText = (TextView) findViewById(R.id.genreText);
-        titleText = (TextView) findViewById(R.id.titleText);
+        artistText = findViewById(R.id.artistText);
+        genreText =  findViewById(R.id.genreText);
+        titleText =  findViewById(R.id.titleText);
 
         artistText.setText(SavedData.readString(SavedData.ARTIST, this));
         genreText.setText(SavedData.readString(SavedData.GENRE, this));
         titleText.setText(SavedData.readString(SavedData.SONG, this));
+
+        if (SavedData.readBool(SavedData.AUTO_ENABLED, this)){
+            hiddentLayout.setVisibility(View.VISIBLE);
+        } else {
+            //hiddentLayout.setVisibility(View.GONE);
+        }
+
+
     }
-
-
 
     /* displays the SeekBar sliders for the supported equalizer frequency bands
      user can move sliders to change the frequency of the bands*/
-    @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
+    @RequiresApi(api = 26)
     private void setupEqualizerFxAndUI() {
 
 //        get reference to linear layout for the seekBars
         mLinearLayout = (LinearLayout) findViewById(R.id.linearLayoutEqual);
 
-        ConstraintLayout mConstraintLayout = findViewById(R.id.eqHolder);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        final int width = displayMetrics.widthPixels;
+
+        ViewGroup.LayoutParams layoutParamss = mLinearLayout.getLayoutParams();
+        layoutParamss.width = height- (int) convertDpToPx(this, 480); //384
+        layoutParamss.height= width - (int) convertDpToPx(this, 72);
+
+        layoutParamss.width = (int) convertDpToPx(this, 230);
 
 
+        mLinearLayout.setLayoutParams(layoutParamss);
+
+        //ConstraintLayout mConstraintLayout = findViewById(R.id.eqHolder);
 //        equalizer heading
         /*
         TextView equalizerHeading = new TextView(this);
@@ -395,14 +463,8 @@ public class MainActivity extends Activity{
         equalizerHeading.setGravity(Gravity.CENTER_HORIZONTAL);
         mLinearLayout.addView(equalizerHeading);
         */
-
-
 //        get number frequency bands supported by the equalizer engine
-        short numberFrequencyBands = mEqualizer.getNumberOfBands();
-
-
-
-
+        final short numberFrequencyBands = mEqualizer.getNumberOfBands();
 //        get the level ranges to be used in setting the band level
 //        get lower limit of the range in milliBels
         final short lowerEqualizerBandLevel = mEqualizer.getBandLevelRange()[0];
@@ -415,7 +477,7 @@ public class MainActivity extends Activity{
             final short equalizerBandIndex = i;
 
 //            frequency header for each seekBar
-            /*
+
             TextView frequencyHeaderTextview = new TextView(this);
             frequencyHeaderTextview.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -423,16 +485,20 @@ public class MainActivity extends Activity{
             frequencyHeaderTextview.setGravity(Gravity.CENTER_HORIZONTAL);
             frequencyHeaderTextview
                     .setText((mEqualizer.getCenterFreq(equalizerBandIndex) / 1000) + " Hz");
+            frequencyHeaderTextview.setTextColor(getResources().getColor(R.color.textColor));
+
+
+            Typeface typeface = getResources().getFont( R.font.montserrat);
+            frequencyHeaderTextview.setTypeface(typeface);
             mLinearLayout.addView(frequencyHeaderTextview);
-            */
+
 
 //            set up linear layout to contain each seekBar
             LinearLayout seekBarRowLayout = new LinearLayout(this);
             seekBarRowLayout.setOrientation(LinearLayout.HORIZONTAL);
 
-
 //            set up lower level textview for this seekBar
-            /*
+
             TextView lowerEqualizerBandLevelTextview = new TextView(this);
             lowerEqualizerBandLevelTextview.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -444,7 +510,7 @@ public class MainActivity extends Activity{
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
             upperEqualizerBandLevelTextview.setText((upperEqualizerBandLevel / 100) + " dB");
-            */
+
 
             //            **********  the seekBar  **************
 //            set the layout parameters for the seekbar
@@ -454,7 +520,6 @@ public class MainActivity extends Activity{
                     ViewGroup.LayoutParams.MATCH_PARENT);
             //layoutParams.height = 100;
 
-
 //            create a new seekBar
             SeekBar seekBar = new SeekBar(this);
 //            give the seekBar an ID
@@ -462,21 +527,25 @@ public class MainActivity extends Activity{
             seekBar.setId(i);
             seekBar.setPadding( 30, 40, 30, 40);
 
-
-
             seekBar.setLayoutParams(layoutParams);
             seekBar.setMax(upperEqualizerBandLevel - lowerEqualizerBandLevel);
 //            set the progress for this seekBar
             seekBar.setProgress(mEqualizer.getBandLevel(equalizerBandIndex));
 
-
 //            change progress as its changed by moving the sliders
+            final short finalI = i;
+
             seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
                 public void onProgressChanged(SeekBar seekBar, int progress,
                                               boolean fromUser) {
                     mEqualizer.setBandLevel(equalizerBandIndex,
                             (short) (progress + lowerEqualizerBandLevel));
+
+                    //seekbarWidth = seekBar.getHeight() - seekBar.getPaddingTop() - seekBar.getPaddingBottom();
+                    //thumbPos[finalI] = seekBar.getPaddingBottom() + width * seekBar.getProgress() / seekBar.getMax();
+
+                    equalizerPresetSpinner.setSelection(mEqualizer.getNumberOfPresets());
                 }
 
                 public void onStartTrackingTouch(SeekBar seekBar) {
@@ -485,6 +554,20 @@ public class MainActivity extends Activity{
 
                 public void onStopTrackingTouch(SeekBar seekBar) {
                     //not used
+
+                    seekBarProgress[finalI] = seekBar.getProgress();
+
+                    Log.e("progress", String.valueOf(seekBarProgress[finalI]));
+                    selected_preset = "Custom";
+                    selected_preset_num = mEqualizer.getNumberOfPresets();
+
+                    SavedData.saveSetting(SavedData.EQUALIZERVALUES, equalizerToString(seekBarProgress), getApplicationContext());
+                    SavedData.saveSetting(SavedData.SELECTED_PRESET_NUM_KEY, selected_preset_num, getApplicationContext());
+                    SavedData.saveSetting(SavedData.SELECTED_PRESET, "Custom", getApplicationContext());
+
+                    Log.e(">>>>>SavedData", ": " + SavedData.readString(SavedData.EQUALIZERVALUES, getApplicationContext()));
+                    Log.e(">>>>>SavedData", ": " + SavedData.readString(SavedData.SELECTED_PRESET, getApplicationContext()));
+                    BackgroundService.updateNotification(getApplicationContext());
                 }
             });
 
@@ -520,14 +603,43 @@ public class MainActivity extends Activity{
     protected  void onResume() {
         super.onResume();
 
-        loudBar.setProgress(SavedData.readInt(SavedData.LOUD_VALUE_KEY, this));
-        equalizerPresetSpinner.setSelection(SavedData.readInt(SavedData.SELECTED_PRESET_NUM_KEY, this));
-        virtualizerSeeker.setProgress(SavedData.readInt(SavedData.VIRTUALIZER_VALUE_KEY, this));
-        bassCircular.setProgress(SavedData.readInt(SavedData.BASS_VALUE_KEY, this));
+        if (SavedData.readBool(SavedData.ENABLED, getApplicationContext())) {
+            if (SavedData.readInt(SavedData.SELECTED_PRESET_NUM_KEY, this) == mEqualizer.getNumberOfPresets()){
+                equalizerPresetSpinner.setSelection(SavedData.readInt(SavedData.SELECTED_PRESET_NUM_KEY, this));
+                for (short i = 0; i < mEqualizer.getNumberOfBands(); i++) {
+                    short equalizerBandIndex = i;
 
-        artistText.setText(SavedData.readString(SavedData.ARTIST, this));
-        genreText.setText(SavedData.readString(SavedData.GENRE, this));
-        titleText.setText(SavedData.readString(SavedData.SONG, this));
+                    SeekBar seekBar = (SeekBar) findViewById(equalizerBandIndex);
+//                    get current gain setting for this equalizer band
+//                    set the progress indicator of this seekBar to indicate the current gain value
+                    int[] temp = equalizerStringToArray(SavedData.readString(SavedData.EQUALIZERVALUES, getApplicationContext()));
+                    seekBar.setProgress(temp[i]);
+                }
+
+                equalizerPresetSpinner.setSelection(mEqualizer.getNumberOfPresets());
+            } else {
+                equalizerPresetSpinner.setSelection(SavedData.readInt(SavedData.SELECTED_PRESET_NUM_KEY, this));
+            }
+
+            if (SavedData.readBool(SavedData.AUTO_ENABLED, this)){
+                hiddentLayout.setVisibility(View.VISIBLE);
+            } else {
+                hiddentLayout.setVisibility(View.GONE);
+            }
+
+            loudBar.setProgress(SavedData.readInt(SavedData.LOUD_VALUE_KEY, this));
+
+            virtualizerSeeker.setProgress(SavedData.readInt(SavedData.VIRTUALIZER_VALUE_KEY, this));
+            bassCircular.setProgress(SavedData.readInt(SavedData.BASS_VALUE_KEY, this));
+
+            artistText.setText(SavedData.readString(SavedData.ARTIST, this));
+            genreText.setText(SavedData.readString(SavedData.GENRE, this));
+            titleText.setText(SavedData.readString(SavedData.SONG, this));
+        }
+
+
+
+
 
     }
 
@@ -535,7 +647,9 @@ public class MainActivity extends Activity{
     protected void onDestroy() {
         super.onDestroy();
 
-        if (isFinishing() && mMediaPlayer != null) {
+        saveSettings();
+
+        if (isFinishing() && mMediaPlayer != null && !SavedData.readBool(SavedData.ENABLED, this)) {
 
             mEqualizer.release();
             mMediaPlayer.release();
@@ -554,8 +668,41 @@ public class MainActivity extends Activity{
         SavedData.saveSetting(SavedData.SELECTED_PRESET_NUM_KEY, selected_preset_num, this);
         SavedData.saveSetting(SavedData.SELECTED_PRESET, selected_preset, this);
 
+        if (SavedData.readBool(SavedData.ENABLED, this)) {
+           // SavedData.saveSetting(SavedData.EQUALIZERVALUES, equalizerToString(seekBarProgress), getApplicationContext());
+        }
+
+
         SavedData.saveSetting(SavedData.VIRTUALIZER_VALUE_KEY, virtualizerValue, this);
     }
 
+    public float convertDpToPx(Context context, float dp) {
+        return dp * context.getResources().getDisplayMetrics().density;
+    }
+
+    public String equalizerToString (int[] values){
+        String equalizerString = "";
+
+
+        for (int i = 0; i < values.length; i++){
+            equalizerString += values[i] + ";";
+        }
+
+        return equalizerString;
+    }
+
+    public int[] equalizerStringToArray (String string){
+        String[] stringArray = string.split(";");
+        int[] equalizerIntArray = new int[stringArray.length];
+
+        for (int i = 0; i < stringArray.length; i++){
+            equalizerIntArray[i] = Integer.parseInt(stringArray[i]);
+        }
+
+        return equalizerIntArray;
+    }
+
 }
+
+
 

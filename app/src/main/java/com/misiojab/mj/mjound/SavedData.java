@@ -1,10 +1,11 @@
 package com.misiojab.mj.mjound;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.widget.AdapterView;
+import android.widget.SeekBar;
 
 public class SavedData {
     public static final String APP = "com.misiojab.mj.mjound";
@@ -17,9 +18,12 @@ public class SavedData {
     public static final String ALBUM = "com.misiojab.mj.mjound.album";
     public static final String GENRE =  "com.misiojab.mj.mjound.genre";
 
+    public static final String EQUALIZERVALUES = "com.misiojab.mj.mjound.equalizervalue";
+
     public static final String ID = "com.misiojab.mj.mjound.id";
 
     public static final String ENABLED = "com.misiojab.mj.mjound.enabled";
+    public static final String AUTO_ENABLED = "com.misiojab.mj.mjound.autoenabled";
 
     public static final String SELECTED_PRESET = "com.misiojab.mj.mjound.selected_preset";
     public static final String SELECTED_PRESET_NUM_KEY = "com.misiojab.mj.mjound.loudvaluepreset";
@@ -63,11 +67,11 @@ public class SavedData {
         prefs.edit().putString(KEY, value).apply();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
     public static void saveSetting(String KEY, boolean value, Context mContext) {
         SharedPreferences prefs = mContext.getSharedPreferences(
                 APP, Context.MODE_PRIVATE);
-        prefs.edit().putBoolean(KEY, value);
+        prefs.edit().putBoolean(KEY, value).apply();
     }
-
 
 }

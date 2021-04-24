@@ -1,7 +1,10 @@
 package com.misiojab.mj.mjound;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,14 +16,29 @@ import android.widget.Switch;
 
 public class SettingsActivity extends Activity {
 
+    Switch enableSwitch;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-
         setupEnableSwitch();
         setupReturnButton();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        saveSettings();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+
     }
 
     private void setupReturnButton(){
@@ -36,13 +54,37 @@ public class SettingsActivity extends Activity {
     }
 
     private void setupEnableSwitch (){
-        final Switch enableSwitch = findViewById(R.id.switchEnable);
+        enableSwitch = findViewById(R.id.switchEnable);
+
+        enableSwitch.setChecked(SavedData.readBool(SavedData.ENABLED, this));
 
         enableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.e("SETTINGSY ENABLEC", ""+isChecked );
+
+                if (isChecked) {
+                    Log.e("Enable Mjound", String.valueOf(isChecked));
+                    SavedData.saveSetting(SavedData.ENABLED, isChecked, getApplicationContext());
+                    Log.e("Enable Mjound w save", String.valueOf(SavedData.readBool(SavedData.ENABLED, getApplicationContext())));
+
+                    getApplicationContext().startService(new Intent(getApplicationContext(), BackgroundService.class));
+
+                } else if (!isChecked) {
+                    Log.e("Enable Mjound", String.valueOf(isChecked));
+                    SavedData.saveSetting(SavedData.ENABLED, isChecked, getApplicationContext());
+                    Log.e("Enable Mjound w save", String.valueOf(SavedData.readBool(SavedData.ENABLED, getApplicationContext())));
+
+                    getApplicationContext().stopService(new Intent(getApplicationContext(), BackgroundService.class));
+                }
             }
         });
+    }
+
+    public void saveSettings() {
+
+    }
+
+    public void stopMediaPlayer(MediaPlayer mediaPlayer){
+        mediaPlayer.stop();
     }
 }

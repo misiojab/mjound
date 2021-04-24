@@ -16,8 +16,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 public class AudioSessionReceiver extends BroadcastReceiver {
+
     public int id;
 
     public MediaPlayer mMediaPlayer;
@@ -37,6 +37,7 @@ public class AudioSessionReceiver extends BroadcastReceiver {
         Toast.makeText(context, id, Toast.LENGTH_LONG).show();
         Log.e("ASR: ", "onReceive: " + id);
 
+
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mMediaPlayer.setAudioSessionId(id);
@@ -46,7 +47,6 @@ public class AudioSessionReceiver extends BroadcastReceiver {
 
         mEqualizer = new Equalizer(0, mMediaPlayer.getAudioSessionId());
         mEqualizer.setEnabled(true);
-
 
         bassBoost = new BassBoost(0, mMediaPlayer.getAudioSessionId());
         bassBoost.setEnabled(true);

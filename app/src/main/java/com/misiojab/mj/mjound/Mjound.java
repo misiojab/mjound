@@ -18,9 +18,8 @@ public class Mjound extends Application {
         SavedData.saveSetting(SavedData.ID, audioSessionReceiver.id, this);
 
         startService(new Intent(this, BackgroundService.class));
-
-
     }
+
 
 
 
