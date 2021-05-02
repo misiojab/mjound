@@ -12,18 +12,11 @@
 
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/cs"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="0"
         android:background="@color/colorPrimaryDark">
-
-        <com.misiojab.mj.mjound.BezierView
-            android:id="@+id/bezierView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/volumeLevel"
@@ -367,6 +360,7 @@
         </LinearLayout>
 
         <Space
+            android:id="@+id/space"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="230dp"

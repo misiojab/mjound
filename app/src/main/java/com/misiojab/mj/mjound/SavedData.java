@@ -1,11 +1,9 @@
 package com.misiojab.mj.mjound;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.widget.SeekBar;
 
 public class SavedData {
     public static final String APP = "com.misiojab.mj.mjound";
@@ -19,6 +17,8 @@ public class SavedData {
     public static final String GENRE =  "com.misiojab.mj.mjound.genre";
 
     public static final String EQUALIZERVALUES = "com.misiojab.mj.mjound.equalizervalue";
+    public static final String X_CORD = "com.misiojab.mj.mjound.x";
+    public static final String Y_CORD = "com.misiojab.mj.mjound.y";
 
     public static final String ID = "com.misiojab.mj.mjound.id";
 

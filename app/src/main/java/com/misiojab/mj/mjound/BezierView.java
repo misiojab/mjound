@@ -6,20 +6,41 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.SeekBar;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class BezierView extends View {
 
-    Paint paint;
-    Path path;
-    int anc0X, anc0Y, anc1X, anc1Y;
+    //Paint paint;
+    Path path = new Path();
+    Paint pathPaint = new Paint();
+    Path borderPath = new Path();
+    Paint borderPathPaint = new Paint();
+    //int anc0X, anc0Y, anc1X, anc1Y;
+    int[] xx = new int[5];
+    int[] yy = new int[5];
+    int[] x1;
+    int[] y1;
+    boolean draw;
+    //int[] xx = new int[]{165, 349, 533, 717, 901};
+    //int[] yy = new int[]{882, 934, 934, 934, 882};
+
+    public ArrayList<PointF> points = new ArrayList<>();
+    public ArrayList<PointF> conPoint1 = new ArrayList<>();
+    public ArrayList<PointF> conPoint2 = new ArrayList<>();
 
     public BezierView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
+        super(context);
         init(attrs, 0);
     }
 
@@ -29,51 +50,90 @@ public class BezierView extends View {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
+        borderPathPaint.setColor(Color.WHITE);
+        borderPathPaint.setStyle(Paint.Style.STROKE);
+        borderPathPaint.setStrokeWidth(4f);
 
-        invalidateTextPaintAndMeasurements();
-    }
+        if (SavedData.readString(SavedData.X_CORD, getContext()) != null
+                && SavedData.readString(SavedData.Y_CORD, getContext()) != null){
+            xx = equalizerStringToArray(SavedData.readString(SavedData.X_CORD, getContext()));
+            yy = equalizerStringToArray(SavedData.readString(SavedData.Y_CORD, getContext()));
 
-    private void invalidateTextPaintAndMeasurements() {
+            if (xx != null && yy != null){
+                try {
+                    calculatePoints();
+                    calculateConnectionPoints();
 
+                } catch (Exception e){
+
+                }
+
+            }
+        }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        paint = new Paint();
-        path = new Path();
 
+        Log.e("Rysowanie", "no rysuje tutaj");
+        update();
+        drawCurve(canvas);
 
+        try {
 
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(Color.rgb(255, 1, 1));
+            //canvas.drawPath(path, pathPaint);
+            //canvas.drawPath(borderPath, borderPathPaint);
+        } catch (Exception e){
 
-
-        path.moveTo(10, this.getWidth()/2);
-/*
-        int[] points = equalizerStringToArray(SavedData.readString(SavedData.EQUALIZERVALUES, getContext()));
-
-        anc1X = (points[0] + points[2])/2;
-        anc1Y = points[1];
-        anc0Y = (points[0] + points[2])/2;
-        anc0X = points[3];
-
-        path.moveTo(points[0], points[1]);
-        paint.setAntiAlias(true);
-
- */
-        //path.cubicTo(anc0X, anc0Y, anc1X, anc1Y, points[2], points[3]);
-
-        path.cubicTo(anc0X, anc0Y, anc1X, anc1Y, 300, 300);
-
-
-        canvas.drawPath(path, paint);
+        }
 
     }
 
-    public float convertDpToPx(Context context, float dp) {
-        return dp * context.getResources().getDisplayMetrics().density;
+    private void calculatePoints(){
+        points = new ArrayList<>();
+
+        for (int i = 0; i < xx.length; i++){
+            points.add(i, new PointF(xx[i], yy[i]));
+        }
+    }
+
+    private void calculateConnectionPoints(){
+        try {
+            conPoint1 = new ArrayList<>();
+            conPoint2 = new ArrayList<>();
+            for (int i = 1; i < points.size(); i++){
+                conPoint1.add(new PointF((points.get(i).x + points.get(i - 1).x)/2, points.get(i - 1).y));
+                conPoint2.add(new PointF((points.get(i).x + points.get(i - 1).x) / 2, points.get(i).y));
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void drawCurve(Canvas canvas){
+        try {
+            if (points.isEmpty() && conPoint1.isEmpty() && conPoint2.isEmpty()) return;
+
+            path.reset();
+            path.moveTo(points.get(0).x, points.get(0).y);
+
+            for (int i = 1; i < points.size(); i++){
+                path.cubicTo(
+                        conPoint1.get(i - 1).x, conPoint1.get(i - 1).y,
+                        conPoint2.get(i - 1).x, conPoint2.get(i - 1).y,
+                        points.get(i).x, points.get(i).y
+                );
+            }
+            borderPath.set(path);
+            canvas.drawPath(borderPath, borderPathPaint);
+
+
+        } catch (Exception e){
+
+        }
+
     }
 
     public int[] equalizerStringToArray (String string){
@@ -85,6 +145,27 @@ public class BezierView extends View {
         }
 
         return equalizerIntArray;
+    }
+
+    public void update (){
+        if (!Arrays.equals(yy, equalizerStringToArray(SavedData.readString(SavedData.Y_CORD, getContext())))) {
+            if (SavedData.readString(SavedData.X_CORD, getContext()) != null
+                    && SavedData.readString(SavedData.Y_CORD, getContext()) != null){
+                xx = equalizerStringToArray(SavedData.readString(SavedData.X_CORD, getContext()));
+                yy = equalizerStringToArray(SavedData.readString(SavedData.Y_CORD, getContext()));
+
+                if (xx != null && yy != null){
+                    try {
+                        calculatePoints();
+                        calculateConnectionPoints();
+                        invalidate();
+                    } catch (Exception e){
+
+                    }
+
+                }
+            }
+        }
     }
 
 }

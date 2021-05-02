@@ -4,9 +4,12 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 
+import android.app.usage.UsageEvents;
+import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -26,6 +29,7 @@ import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -74,6 +78,8 @@ public class MainActivity extends Activity{
     private int priority = 0; //było 5
 
     private WaveVisualizer waveVisualizer;
+    BezierView bezierView;
+
 
     ConstraintLayout hiddentLayout;
     FloatingActionButton fab;
@@ -81,13 +87,15 @@ public class MainActivity extends Activity{
 
     ConstraintLayout disabledLayout;
 
+    ConstraintLayout cs;
+
     public TextView titleText;
     public TextView genreText;
     public TextView artistText;
     public TextView status = null;
 
-    public int seekbarWidth;
     public int[] seekBarProgress;
+
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -95,6 +103,8 @@ public class MainActivity extends Activity{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        cs = findViewById(R.id.cs);
 
         disabledLayout = findViewById(R.id.disabledLayout);
         Button b = (Button) findViewById(R.id.goToSettings);
@@ -123,14 +133,14 @@ public class MainActivity extends Activity{
 
         setupFab();
 
+        bezierView = new BezierView(this, null);
+        cs.addView(bezierView);
+        drawBezierUI();
+
 
 //        set the device's volume control to control the audio stream we'll be playing
         //setVolumeControlStream(AudioManager.STREAM_MUSIC);
         // Create the MediaPlayer
-
-
-
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -454,6 +464,8 @@ public class MainActivity extends Activity{
 
         mLinearLayout.setLayoutParams(layoutParamss);
 
+
+
         //ConstraintLayout mConstraintLayout = findViewById(R.id.eqHolder);
 //        equalizer heading
         /*
@@ -532,36 +544,39 @@ public class MainActivity extends Activity{
 //            set the progress for this seekBar
             seekBar.setProgress(mEqualizer.getBandLevel(equalizerBandIndex));
 
+
+
 //            change progress as its changed by moving the sliders
             final short finalI = i;
 
-            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            seekBar.setOnSeekBarChangeListener( new SeekBar.OnSeekBarChangeListener() {
                 @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
                 public void onProgressChanged(SeekBar seekBar, int progress,
                                               boolean fromUser) {
                     mEqualizer.setBandLevel(equalizerBandIndex,
                             (short) (progress + lowerEqualizerBandLevel));
 
-                    //seekbarWidth = seekBar.getHeight() - seekBar.getPaddingTop() - seekBar.getPaddingBottom();
-                    //thumbPos[finalI] = seekBar.getPaddingBottom() + width * seekBar.getProgress() / seekBar.getMax();
-
                     equalizerPresetSpinner.setSelection(mEqualizer.getNumberOfPresets());
+
+                    drawBezierUI();
+
+                    if (fromUser){
+                        saveEqualizerValues();
+                    }
+
                 }
 
                 public void onStartTrackingTouch(SeekBar seekBar) {
                     //not used
+
                 }
 
                 public void onStopTrackingTouch(SeekBar seekBar) {
                     //not used
 
-                    seekBarProgress[finalI] = seekBar.getProgress();
-
-                    Log.e("progress", String.valueOf(seekBarProgress[finalI]));
                     selected_preset = "Custom";
                     selected_preset_num = mEqualizer.getNumberOfPresets();
 
-                    SavedData.saveSetting(SavedData.EQUALIZERVALUES, equalizerToString(seekBarProgress), getApplicationContext());
                     SavedData.saveSetting(SavedData.SELECTED_PRESET_NUM_KEY, selected_preset_num, getApplicationContext());
                     SavedData.saveSetting(SavedData.SELECTED_PRESET, "Custom", getApplicationContext());
 
@@ -569,7 +584,12 @@ public class MainActivity extends Activity{
                     Log.e(">>>>>SavedData", ": " + SavedData.readString(SavedData.SELECTED_PRESET, getApplicationContext()));
                     BackgroundService.updateNotification(getApplicationContext());
                 }
+
+
             });
+
+            bezierView = new BezierView(this, null);
+            cs.addView(bezierView);
 
 //            add the lower and upper band level textviews and the seekBar to the row layout
             //seekBarRowLayout.addView(lowerEqualizerBandLevelTextview);
@@ -578,7 +598,10 @@ public class MainActivity extends Activity{
 
             mLinearLayout.addView(seekBarRowLayout);
 
+
+
             //        show the spinner
+
 
             equalizeSound();
         }
@@ -596,6 +619,51 @@ public class MainActivity extends Activity{
             mEqualizer.release();
             mMediaPlayer.release();
             mMediaPlayer = null;
+        }
+    }
+
+    public void CalculatePoints(){
+        //int[][] location = new int[mEqualizer.getNumberOfBands()][2];
+
+        int[] x = new int[mEqualizer.getNumberOfBands()];
+        int[] y = new int[mEqualizer.getNumberOfBands()];
+
+        for (int i = 0; i < mEqualizer.getNumberOfBands(); i++){
+            //seekbarWidth = seekBar.getHeight() - seekBar.getPaddingTop() - seekBar.getPaddingBottom();
+            //thumbPos[finalI] = seekBar.getPaddingBottom() + width * seekBar.getProgress() / seekBar.getMax();
+
+            SeekBar seekBar = findViewById(i);
+            //seekBar.getLocationOnScreen(location[i]);
+
+            int[] location = new int[2];
+
+            seekBar.getLocationOnScreen(location);
+
+            int width = seekBar.getWidth();
+
+            x[i] = location[0] + seekBar.getHeight()/2;
+            y[i] = location[1] - seekBar.getPaddingLeft()
+                    - width
+                    * seekBar.getProgress()
+                    / seekBar.getMax()
+            -seekBar.getPaddingRight();
+
+        }
+
+        SavedData.saveSetting(SavedData.X_CORD, equalizerToString(x), this);
+        SavedData.saveSetting(SavedData.Y_CORD, equalizerToString(y), this);
+        Log.e("Calculatepoints", SavedData.readString(SavedData.X_CORD, this)+ " " +SavedData.readString(SavedData.Y_CORD, this) );
+
+    }
+
+    public void saveEqualizerValues(){
+        for (int i = 0; i < mEqualizer.getNumberOfBands(); i++){
+
+            SeekBar seekBar = findViewById(i);
+            seekBarProgress[i] = seekBar.getProgress();
+
+            SavedData.saveSetting(SavedData.EQUALIZERVALUES, equalizerToString(seekBarProgress), getApplicationContext());
+
         }
     }
 
@@ -627,6 +695,13 @@ public class MainActivity extends Activity{
                 hiddentLayout.setVisibility(View.GONE);
             }
 
+            if (!SavedData.readBool(SavedData.ENABLED, this)){
+                    mEqualizer.release();
+                    mMediaPlayer.release();
+                    mMediaPlayer = null;
+
+            }
+
             loudBar.setProgress(SavedData.readInt(SavedData.LOUD_VALUE_KEY, this));
 
             virtualizerSeeker.setProgress(SavedData.readInt(SavedData.VIRTUALIZER_VALUE_KEY, this));
@@ -639,7 +714,14 @@ public class MainActivity extends Activity{
 
 
 
+    }
 
+    @Override
+    protected void onStart(){
+        super.onStart();
+        if (SavedData.readBool(SavedData.ENABLED, this)){
+            CalculatePoints();
+        }
 
     }
 
@@ -674,6 +756,12 @@ public class MainActivity extends Activity{
 
 
         SavedData.saveSetting(SavedData.VIRTUALIZER_VALUE_KEY, virtualizerValue, this);
+    }
+
+    public void drawBezierUI(){
+
+        CalculatePoints();
+        bezierView.invalidate();
     }
 
     public float convertDpToPx(Context context, float dp) {
