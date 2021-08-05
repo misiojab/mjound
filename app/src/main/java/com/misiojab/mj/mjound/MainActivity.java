@@ -737,13 +737,18 @@ public class MainActivity extends Activity{
     protected void onDestroy() {
         super.onDestroy();
 
-        saveSettings();
+        if ( SavedData.readBool(SavedData.ENABLED, this)){
+            saveSettings();
+        }
+
 
         if (isFinishing() && mMediaPlayer != null && !SavedData.readBool(SavedData.ENABLED, this)) {
 
             mEqualizer.release();
             mMediaPlayer.release();
             mMediaPlayer = null;
+        } else {
+
         }
 
         if(waveVisualizer != null){
@@ -757,7 +762,7 @@ public class MainActivity extends Activity{
         SavedData.saveSetting(SavedData.LOUD_VALUE_KEY, loudValue, this);
         SavedData.saveSetting(SavedData.SELECTED_PRESET_NUM_KEY, selected_preset_num, this);
         SavedData.saveSetting(SavedData.SELECTED_PRESET, selected_preset, this);
-        CalculatePoints();
+
 
 
         if (SavedData.readBool(SavedData.ENABLED, this)) {
@@ -770,11 +775,16 @@ public class MainActivity extends Activity{
 
     public void drawBezierUI(){
 
-        CalculatePoints();
-        bezierView.init();
-        bezierView.update();
 
-        bezierView.invalidate();
+        if (SavedData.readBool(SavedData.ENABLED, this)) {
+
+            CalculatePoints();
+            bezierView.init();
+            bezierView.update();
+
+            bezierView.invalidate();
+        }
+
     }
 
     public float convertDpToPx(Context context, float dp) {
