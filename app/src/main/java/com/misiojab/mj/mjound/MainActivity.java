@@ -1,5 +1,7 @@
 package com.misiojab.mj.mjound;
 
+import static android.graphics.Color.LTGRAY;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -11,6 +13,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.audiofx.BassBoost;
@@ -58,6 +61,9 @@ public class MainActivity extends Activity{
 
     public CircularSeekBar bassCircular;
     public TextView textBass;
+
+    public TextView textVirtualizerTitle;
+    public TextView textVirtualizer;
 
     public Virtualizer virtualizer;
     private short virtualizerValue;
@@ -144,8 +150,6 @@ public class MainActivity extends Activity{
             disabledLayout.setVisibility(View.VISIBLE);
         }
 
-
-
 //        set the device's volume control to control the audio stream we'll be playing
         //setVolumeControlStream(AudioManager.STREAM_MUSIC);
         // Create the MediaPlayer
@@ -159,7 +163,6 @@ public class MainActivity extends Activity{
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mMediaPlayer.setAudioSessionId(id);
-
 
 //        create the equalizer with default priority of 0 & attach to our media player
 
@@ -194,8 +197,6 @@ public class MainActivity extends Activity{
         setupAutomaticFit();
 
         startService(new Intent(this, NotificationListener.class));
-
-
     }
 
     private void setupFab() {
@@ -295,8 +296,6 @@ public class MainActivity extends Activity{
                     selected_preset = equalizerPresetNames.get(position);
                     selected_preset_num = position;
 
-
-
 //                get the lower gain setting for this equalizer band
                     final short lowerEqualizerBandLevel = mEqualizer.getBandLevelRange()[0];
 
@@ -359,29 +358,41 @@ public class MainActivity extends Activity{
     private void setupVirtualizer(){
         virtualizerSeeker = (CircularSeekBar) findViewById(R.id.circularVirtualizer);
         virtualizerSeeker.setMax(Virtualizer.PARAM_STRENGTH_SUPPORTED);
+
+        textVirtualizer = findViewById(R.id.virtualizerLevel);
+        textVirtualizerTitle =findViewById(R.id.textVirtualizerTitle);
         
         Log.e("VIRTUALIZER",""+Virtualizer.PARAM_STRENGTH_SUPPORTED);
 
-        virtualizerSeeker.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(CircularSeekBar circularSeekBar, float progress, boolean fromUser) {
-                short value = (short) progress;
-                virtualizerValue = value;
-                virtualizer.setStrength(value);
-            }
+        if(isHeadphonesPlugged()) {
+            virtualizerSeeker.setEnabled(true);
+            virtualizerSeeker.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(CircularSeekBar circularSeekBar, float progress, boolean fromUser) {
+                    short value = (short) progress;
+                    virtualizerValue = value;
+                    virtualizer.setStrength(value);
 
-            
+                    textVirtualizer.setText("+" + value / 10);
+                }
 
-            @Override
-            public void onStopTrackingTouch(CircularSeekBar seekBar) {
+                @Override
+                public void onStopTrackingTouch(CircularSeekBar seekBar) {
 
-            }
+                }
 
-            @Override
-            public void onStartTrackingTouch(CircularSeekBar seekBar) {
+                @Override
+                public void onStartTrackingTouch(CircularSeekBar seekBar) {
 
-            }
-        });
+                }
+            });
+        } else {
+            virtualizerSeeker.setEnabled(false);
+            textVirtualizer.setTextColor(LTGRAY);
+            textVirtualizerTitle.setTextColor(LTGRAY);
+            textVirtualizer.setText("Disabled");
+            textVirtualizer.setTextSize(16);
+        }
     }
 
     private void setupLoudnessEnhancer(){
@@ -402,7 +413,6 @@ public class MainActivity extends Activity{
                 textLoud.setText("+" + value/100);
             }
 
-
             public void onStartTrackingTouch(SeekBar seekBar) {
 
             }
@@ -411,7 +421,6 @@ public class MainActivity extends Activity{
 
             }
         });
-
     }
 
     private void setupSettingsButton(){
@@ -450,8 +459,6 @@ public class MainActivity extends Activity{
         } else {
             //hiddenLayout.setVisibility(View.GONE);
         }
-
-
     }
 
     /* displays the SeekBar sliders for the supported equalizer frequency bands
@@ -472,7 +479,6 @@ public class MainActivity extends Activity{
         layoutParamss.height= width - (int) convertDpToPx(this, 72);
 
         layoutParamss.width = (int) convertDpToPx(this, 230);
-
 
         mLinearLayout.setLayoutParams(layoutParamss);
 
@@ -509,11 +515,9 @@ public class MainActivity extends Activity{
                     .setText((mEqualizer.getCenterFreq(equalizerBandIndex) / 1000) + " Hz");
             frequencyHeaderTextview.setTextColor(getResources().getColor(R.color.textColor));
 
-
             Typeface typeface = getResources().getFont( R.font.montserrat);
             frequencyHeaderTextview.setTypeface(typeface);
             mLinearLayout.addView(frequencyHeaderTextview);
-
 
 //            set up linear layout to contain each seekBar
             LinearLayout seekBarRowLayout = new LinearLayout(this);
@@ -554,8 +558,6 @@ public class MainActivity extends Activity{
 //            set the progress for this seekBar
             seekBar.setProgress(mEqualizer.getBandLevel(equalizerBandIndex));
 
-
-
 //            change progress as its changed by moving the sliders
             final short finalI = i;
 
@@ -568,19 +570,14 @@ public class MainActivity extends Activity{
 
                     equalizerPresetSpinner.setSelection(mEqualizer.getNumberOfPresets());
 
-
-
                     if (fromUser){
                         saveEqualizerValues();
                         drawBezierUI();
                     }
-
-
                 }
 
                 public void onStartTrackingTouch(SeekBar seekBar) {
                     //not used
-
                 }
 
                 public void onStopTrackingTouch(SeekBar seekBar) {
@@ -596,11 +593,7 @@ public class MainActivity extends Activity{
                     Log.e(">>>>>SavedData", ": " + SavedData.readString(SavedData.SELECTED_PRESET, getApplicationContext()));
                     BackgroundService.updateNotification(getApplicationContext());
                 }
-
-
             });
-
-
 
 //            add the lower and upper band level textviews and the seekBar to the row layout
             //seekBarRowLayout.addView(lowerEqualizerBandLevelTextview);
@@ -609,15 +602,8 @@ public class MainActivity extends Activity{
 
             mLinearLayout.addView(seekBarRowLayout);
 
-
-
-            //        show the spinner
-
-
             equalizeSound();
         }
-
-
     }
 
     @Override
@@ -673,7 +659,6 @@ public class MainActivity extends Activity{
             seekBarProgress[i] = seekBar.getProgress();
 
             SavedData.saveSetting(SavedData.EQUALIZERVALUES, equalizerToString(seekBarProgress), getApplicationContext());
-
         }
     }
 
@@ -709,7 +694,6 @@ public class MainActivity extends Activity{
                     mEqualizer.release();
                     mMediaPlayer.release();
                     mMediaPlayer = null;
-
             }
 
             loudBar.setProgress(SavedData.readInt(SavedData.LOUD_VALUE_KEY, this));
@@ -730,7 +714,6 @@ public class MainActivity extends Activity{
         if (SavedData.readBool(SavedData.ENABLED, this)){
 
         }
-
     }
 
     @Override
@@ -747,8 +730,6 @@ public class MainActivity extends Activity{
             mEqualizer.release();
             mMediaPlayer.release();
             mMediaPlayer = null;
-        } else {
-
         }
 
         if(waveVisualizer != null){
@@ -763,18 +744,14 @@ public class MainActivity extends Activity{
         SavedData.saveSetting(SavedData.SELECTED_PRESET_NUM_KEY, selected_preset_num, this);
         SavedData.saveSetting(SavedData.SELECTED_PRESET, selected_preset, this);
 
-
-
         if (SavedData.readBool(SavedData.ENABLED, this)) {
            // SavedData.saveSetting(SavedData.EQUALIZERVALUES, equalizerToString(seekBarProgress), getApplicationContext());
         }
-
 
         SavedData.saveSetting(SavedData.VIRTUALIZER_VALUE_KEY, virtualizerValue, this);
     }
 
     public void drawBezierUI(){
-
 
         if (SavedData.readBool(SavedData.ENABLED, this)) {
 
@@ -784,7 +761,6 @@ public class MainActivity extends Activity{
 
             bezierView.invalidate();
         }
-
     }
 
     public float convertDpToPx(Context context, float dp) {
@@ -812,7 +788,15 @@ public class MainActivity extends Activity{
         return equalizerIntArray;
     }
 
+    private boolean isHeadphonesPlugged(){
+        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        AudioDeviceInfo[] audioDevices = audioManager.getDevices(AudioManager.GET_DEVICES_ALL);
+        for(AudioDeviceInfo deviceInfo : audioDevices){
+            if(deviceInfo.getType()==AudioDeviceInfo.TYPE_WIRED_HEADPHONES
+                    || deviceInfo.getType()==AudioDeviceInfo.TYPE_WIRED_HEADSET){
+                return true;
+            }
+        }
+        return false;
+    }
 }
-
-
-

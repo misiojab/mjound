@@ -169,7 +169,7 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/textBassTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="48dp"
@@ -186,6 +186,22 @@
             app:layout_constraintVertical_bias="0.49" />
 
         <TextView
+            android:id="@+id/textVirtualizerTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="0"
+            android:fontFamily="@font/montserrat"
+            android:text="Virtualizer"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@+id/virtualizerLevel"
+            app:layout_constraintEnd_toEndOf="@+id/circularVirtualizer"
+            app:layout_constraintStart_toStartOf="@+id/circularVirtualizer"
+            app:layout_constraintTop_toTopOf="@+id/circularVirtualizer" />
+
+        <TextView
             android:id="@+id/BassLevel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -197,6 +213,19 @@
             app:layout_constraintBottom_toBottomOf="@+id/BassCircular"
             app:layout_constraintEnd_toEndOf="@+id/BassCircular"
             app:layout_constraintStart_toStartOf="@+id/BassCircular" />
+
+        <TextView
+            android:id="@+id/virtualizerLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="48dp"
+            android:fontFamily="@font/montserrat"
+            android:text="+0"
+            android:textColor="#fff"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="@+id/circularVirtualizer"
+            app:layout_constraintEnd_toEndOf="@+id/circularVirtualizer"
+            app:layout_constraintStart_toStartOf="@+id/circularVirtualizer" />
 
         <android.support.v7.widget.CardView
             android:id="@+id/cardView"
@@ -377,7 +406,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar">
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            tools:visibility="invisible">
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="0dp"
@@ -417,6 +447,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
             </android.support.constraint.ConstraintLayout>
 
             <TextView
