@@ -41,15 +41,15 @@ public class BezierView extends View {
 
     public BezierView(Context context, @Nullable AttributeSet attrs) {
         super(context);
-        init(attrs, 0);
+        init();
     }
 
     public BezierView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(attrs, defStyle);
+        init();
     }
 
-    private void init(AttributeSet attrs, int defStyle) {
+    public void init() {
         borderPathPaint.setColor(Color.WHITE);
         borderPathPaint.setStyle(Paint.Style.STROKE);
         borderPathPaint.setStrokeWidth(4f);
@@ -137,14 +137,23 @@ public class BezierView extends View {
     }
 
     public int[] equalizerStringToArray (String string){
-        String[] stringArray = string.split(";");
-        int[] equalizerIntArray = new int[stringArray.length];
+        if (string != ""){
+            String[] stringArray = string.split(";");
+            int[] equalizerIntArray = new int[stringArray.length];
+            try {
+                for (int i = 0; i < stringArray.length; i++){
+                    equalizerIntArray[i] = Integer.parseInt(stringArray[i]);
+                }
+            } catch (Exception e){
 
-        for (int i = 0; i < stringArray.length; i++){
-            equalizerIntArray[i] = Integer.parseInt(stringArray[i]);
+            }
+
+
+            return equalizerIntArray;
+        } else {
+            return null;
         }
 
-        return equalizerIntArray;
     }
 
     public void update (){
