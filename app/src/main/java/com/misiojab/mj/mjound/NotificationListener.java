@@ -173,20 +173,38 @@ public class NotificationListener extends NotificationListenerService {
         if(StandardWidget.currentAlbum==null)StandardWidget.currentAlbum = "";
         sendBroadcast(new Intent(StandardWidget.WIDGET_UPDATE));
         */
-        if (meta.getString(MediaMetadata.METADATA_KEY_TITLE) != null)
+        if (meta.getString(MediaMetadata.METADATA_KEY_TITLE) != null) {
             Log.e(" .METADATA_KEY_TITLE", meta.getString(MediaMetadata.METADATA_KEY_TITLE));
-        if (meta.getString(MediaMetadata.METADATA_KEY_GENRE) != null)
+            SavedData.saveSetting(SavedData.SONG, meta.getString(MediaMetadata.METADATA_KEY_TITLE), this);
+        }
+
+        if (meta.getString(MediaMetadata.METADATA_KEY_GENRE) != null) {
             Log.e(" .METADATA_KEY_GENRE", meta.getString(MediaMetadata.METADATA_KEY_GENRE));
-        if (meta.getString(MediaMetadata.METADATA_KEY_ALBUM) != null)
+            SavedData.saveSetting(SavedData.GENRE, meta.getString(MediaMetadata.METADATA_KEY_GENRE), this);
+        }
+
+        if (meta.getString(MediaMetadata.METADATA_KEY_ALBUM) != null) {
             Log.e(" .METADATA_KEY_ALBUM", meta.getString(MediaMetadata.METADATA_KEY_ALBUM));
-        if (meta.getString(MediaMetadata.METADATA_KEY_ARTIST) != null)
+            SavedData.saveSetting(SavedData.ALBUM, meta.getString(MediaMetadata.METADATA_KEY_ALBUM), this);
+        }
+
+        if (meta.getString(MediaMetadata.METADATA_KEY_ARTIST) != null) {
             Log.e(" .METADATA_KEY_ARTIST", meta.getString(MediaMetadata.METADATA_KEY_ARTIST));
-        if (meta.getString(MediaMetadata.METADATA_KEY_AUTHOR) != null)
+            SavedData.saveSetting(SavedData.ARTIST, meta.getString(MediaMetadata.METADATA_KEY_ARTIST), this);
+        }
+
+        if (meta.getString(MediaMetadata.METADATA_KEY_AUTHOR) != null) {
             Log.e(" .METADATA_KEY_ARTIST", meta.getString(MediaMetadata.METADATA_KEY_AUTHOR));
-        if (meta.getString(MediaMetadata.METADATA_KEY_COMPOSER) != null)
+        }
+
+        if (meta.getString(MediaMetadata.METADATA_KEY_COMPOSER) != null) {
             Log.e(" .METADATA_KEY_ARTIST", meta.getString(MediaMetadata.METADATA_KEY_COMPOSER));
-        if (meta.getString(MediaMetadata.METADATA_KEY_DURATION) != null)
+        }
+
+        if (meta.getString(MediaMetadata.METADATA_KEY_DURATION) != null) {
             Log.e(" .METADATA_KEY_ARTIST", meta.getString(MediaMetadata.METADATA_KEY_DURATION));
+        }
+
 
     }
 
