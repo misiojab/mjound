@@ -97,6 +97,7 @@ public class MainActivity extends Activity{
     public TextView titleText;
     public TextView genreText;
     public TextView artistText;
+    public TextView albumText;
     public TextView status = null;
 
     public int[] seekBarProgress;
@@ -449,10 +450,12 @@ public class MainActivity extends Activity{
         genreText =  findViewById(R.id.genreText);
         titleText =  findViewById(R.id.titleText);
         hiddenLayout = findViewById(R.id.hiddenLayout);
+        albumText = findViewById(R.id.albumText);
 
         artistText.setText(SavedData.readString(SavedData.ARTIST, this));
         genreText.setText(SavedData.readString(SavedData.GENRE, this));
         titleText.setText(SavedData.readString(SavedData.SONG, this));
+        albumText.setText(SavedData.readString(SavedData.ALBUM, this));
 
         if (SavedData.readBool(SavedData.AUTO_ENABLED, this)){
             hiddenLayout.setVisibility(View.VISIBLE);
